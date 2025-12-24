@@ -1,5 +1,6 @@
 package com.blogManagementSystem.controller;
 import com.blogManagementSystem.config.AppConstants;
+import com.blogManagementSystem.dto.BlogCreateResponseDTO;
 import com.blogManagementSystem.dto.BlogListResponse;
 import com.blogManagementSystem.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,20 @@ public class UserController {
         BlogListResponse blogListResponse = userService.getMyBlogs(userId, sortBy, sortOrder, pageNo, pageSize);
         return new ResponseEntity<>(blogListResponse, HttpStatus.OK);
     }
+
+    @PatchMapping("/like/{blogId}/{userId}")
+    public ResponseEntity<BlogCreateResponseDTO> likeBlogByBlogId(@PathVariable Long blogId,
+                                                                  @PathVariable Long userId){
+        BlogCreateResponseDTO likedBlogDTO = userService.likeBlogByBlogId(blogId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(likedBlogDTO);
+    }
+
+    @DeleteMapping("/unlike/{blogId}/{userId}")
+    public ResponseEntity<BlogCreateResponseDTO> unLikeBlogByBlogId(@PathVariable Long blogId,
+                                                                  @PathVariable Long userId){
+        BlogCreateResponseDTO likedBlogDTO = userService.unLikeBlogByBlogId(blogId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(likedBlogDTO);
+    }
+
 
 }

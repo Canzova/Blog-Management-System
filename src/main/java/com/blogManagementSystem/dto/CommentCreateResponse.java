@@ -1,5 +1,8 @@
-package com.blogManagementSystem.entity;
+package com.blogManagementSystem.dto;
 
+import com.blogManagementSystem.entity.Blog;
+import com.blogManagementSystem.entity.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,30 +12,14 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comment {
+public class CommentCreateResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
-
-    @Column(nullable = false)
     private String comment;
 
-    @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dateTime;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "blog_blog_id")
-    private Blog blog;
-
 }

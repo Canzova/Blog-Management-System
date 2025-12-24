@@ -23,13 +23,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @NotBlank(message = "First Name cannot be blank or null")
-    @Size(min=3, message = "First Name should be at-least 3 characters long")
     @Column(nullable = false)
     private String firstName;
 
-    @NotBlank(message = "Last Name cannot be blank or null")
-    @Size(min=3, message = "Last Name should be at-least 3 characters long")
     @Column(nullable = false) // DB level Protection
     private String lastName;
 

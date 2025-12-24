@@ -2,6 +2,7 @@ package com.blogManagementSystem.service;
 
 import com.blogManagementSystem.dto.BlogCreateResponseDTO;
 import com.blogManagementSystem.dto.BlogListResponse;
+import com.blogManagementSystem.dto.CommentCreateResponse;
 import com.blogManagementSystem.entity.Blog;
 import com.blogManagementSystem.entity.User;
 import com.blogManagementSystem.exception.EmptyResourceException;
@@ -69,5 +70,49 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         return blogListResponse;
+    }
+
+    @Override
+    @Transactional
+    public BlogCreateResponseDTO likeBlogByBlogId(Long blogId, Long userId) {
+        // Step 1 : Check if this blogId exits with this author (User)
+        Blog blog = blogRepository.findByBlogIdAndAuthor_UserId(blogId, userId).
+                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId, "User", userId));
+
+        // This user will always exist
+        User user = userRepository.findById(userId).
+                orElseThrow();
+
+        blog.getLikes().add(user); // Dirty
+
+        return getBlogCreateResponseDTO(blog);
+    }
+
+    @Override
+    @Transactional
+    public BlogCreateResponseDTO unLikeBlogByBlogId(Long blogId, Long userId) {
+        // Step 1 : Check if this blogId exits with this author (User)
+        Blog blog = blogRepository.findByBlogIdAndAuthor_UserId(blogId, userId).
+                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId, "User", userId));
+
+        // This user will always exist
+        User user = userRepository.findById(userId).
+                orElseThrow();
+
+        blog.getLikes().remove(user); // Dirty
+
+        return getBlogCreateResponseDTO(blog);
+    }
+
+    private BlogCreateResponseDTO getBlogCreateResponseDTO(Blog blog) {
+        List<CommentCreateResponse> commentCreateResponseDTOList = blog.getComments().stream()
+                .map(comment -> modelMapper.map(comment, CommentCreateResponse.class))
+                .toList();
+
+        BlogCreateResponseDTO blogCreateResponseDTO = modelMapper.map(blog, BlogCreateResponseDTO.class);
+
+        blogCreateResponseDTO.setComments(commentCreateResponseDTOList);
+        blogCreateResponseDTO.setLikeCount(blog.getLikes() != null ? (long) blog.getLikes().size(): 0L);
+        return blogCreateResponseDTO;
     }
 }

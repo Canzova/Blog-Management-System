@@ -6,6 +6,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,25 +34,28 @@ public class DataLoader implements CommandLineRunner {
 
         User u1 = new User(
                 null,
+                "user1@gmail.com",
+                "pass",
                 "John",
                 "Doe",
-                "john@example.com",
                 new ArrayList<>()
         );
 
         User u2 = new User(
                 null,
+                "user2@gmail.com",
+                "pass",
                 "Alice",
                 "Smith",
-                "alice@example.com",
                 new ArrayList<>()
         );
 
         User u3 = new User(
                 null,
+                "user3@gmail.com",
+                "pass",
                 "Bob",
                 "Brown",
-                "bob@example.com",
                 new ArrayList<>()
         );
 
@@ -59,4 +66,15 @@ public class DataLoader implements CommandLineRunner {
     public ModelMapper modelMapper(){
         return new ModelMapper();
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 }

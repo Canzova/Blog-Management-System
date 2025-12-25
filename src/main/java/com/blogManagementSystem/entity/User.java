@@ -1,5 +1,6 @@
 package com.blogManagementSystem.entity;
 
+import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.service.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -10,11 +11,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -38,13 +38,21 @@ public class User implements UserDetails{
     @Column(nullable = false) // DB level Protection
     private String lastName;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<ROLE> roles = new HashSet<>();
+
     @OneToMany(mappedBy = "author", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JsonIgnore
     private List<Blog>blog = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+
+        return roles.stream()
+                .map(role1 -> new SimpleGrantedAuthority("ROLE_" + role1.name()))
+                .toList();
     }
 
 }

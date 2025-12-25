@@ -33,12 +33,11 @@ public class BlogServiceImpl implements BlogService{
     @Override
     @Transactional
     public BlogCreateResponseDTO writeBlog(Long id, BlogCreateRequestDTO blogCreateRequestDTO) {
-        // Step 1 : Check if ths user exists in db and get it
-
+        // Step 1 : Check if ths user exists in db and get it ---> Edit : USer will always exist because it is logged-in user
         User user = userRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException("User", id));
-        // User is not stored in persistence context
 
+        // User is now stored in persistence context
         Blog blog = Blog.builder()
                 .content(blogCreateRequestDTO.getContent())
                 .category(blogCreateRequestDTO.getCategory())
@@ -66,7 +65,7 @@ public class BlogServiceImpl implements BlogService{
     @Transactional
     public BlogCreateResponseDTO editBlog(Long userId, Long blogId, BlogCreateRequestDTO blogCreateRequestDTO) {
 
-        // Step 1 : Check if ths user exists in db and get it
+        // Step 1 : Check if ths user exists in db and get it ---> Edit : USer will always exist because it is logged-in user
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
@@ -154,18 +153,14 @@ public class BlogServiceImpl implements BlogService{
     @Override
     @Transactional
     public BlogCreateResponseDTO deleteBlogById(Long userId, Long blogId) {
-        // Step 1 : Check if ths user exists in db and get it
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("User", userId));
-
-        // Step 2 : Get the blog with given blogId and userId
-        Blog blog = blogRepository.findByBlogIdAndAuthor(blogId, user).
+        // Step 1 : Get the blog with given blogId and userId
+        Blog blog = blogRepository.findByBlogIdAndAuthor_UserId(blogId, userId).
                 orElseThrow(()-> new ResourceNotFoundException("Blog", blogId, "User", userId));
 
         blogRepository.delete(blog);
 
         BlogCreateResponseDTO response =  modelMapper.map(blog, BlogCreateResponseDTO.class);
-        response.setAuthorId(user.getUserId());
+        response.setAuthorId(userId);
         response.setLikeCount(blog.getLikes() != null ? (long)blog.getLikes().size() : 0L);
 
         return response;

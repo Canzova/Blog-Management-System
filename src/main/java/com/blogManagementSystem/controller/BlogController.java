@@ -4,11 +4,13 @@ import com.blogManagementSystem.config.AppConstants;
 import com.blogManagementSystem.dto.BlogCreateRequestDTO;
 import com.blogManagementSystem.dto.BlogCreateResponseDTO;
 import com.blogManagementSystem.dto.BlogListResponse;
+import com.blogManagementSystem.entity.User;
 import com.blogManagementSystem.service.BlogService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,21 +19,21 @@ import org.springframework.web.bind.annotation.*;
 public class BlogController {
     private final BlogService blogService;
 
-    @PostMapping("/write/{id}")
-    public ResponseEntity<BlogCreateResponseDTO> writeBlog(@Valid @RequestBody BlogCreateRequestDTO blogCreateRequestDTO,
-                                                           @PathVariable(name = "id") Long userId){
-        // Logged In user ID
-        BlogCreateResponseDTO blogCreateResponseDTO = blogService.writeBlog(userId, blogCreateRequestDTO);
+    @PostMapping("/write")
+    public ResponseEntity<BlogCreateResponseDTO> writeBlog(@Valid @RequestBody BlogCreateRequestDTO blogCreateRequestDTO){
+        // Logged-in user
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        BlogCreateResponseDTO blogCreateResponseDTO = blogService.writeBlog(loggedInUser.getUserId(), blogCreateRequestDTO);
         return new ResponseEntity<>(blogCreateResponseDTO, HttpStatus.CREATED);
 
     }
 
-    @PutMapping("/edit/blog/{blogId}/{id}")
+    @PutMapping("/edit/blog/{blogId}")
     public ResponseEntity<BlogCreateResponseDTO> editBlog(@Valid @RequestBody BlogCreateRequestDTO blogCreateRequestDTO,
-                                                          @PathVariable(name = "id") Long userId,
                                                           @PathVariable Long blogId){
-        // Logged In user ID
-        BlogCreateResponseDTO blogCreateResponseDTO = blogService.editBlog(userId, blogId, blogCreateRequestDTO);
+        // Logged-in user
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        BlogCreateResponseDTO blogCreateResponseDTO = blogService.editBlog(loggedInUser.getUserId(), blogId, blogCreateRequestDTO);
         return new ResponseEntity<>(blogCreateResponseDTO, HttpStatus.CREATED);
 
     }
@@ -66,9 +68,11 @@ public class BlogController {
         return new ResponseEntity<>(categoryBlogResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{userId}/{blogId}")
-    public ResponseEntity<BlogCreateResponseDTO> deleteBlogById(@PathVariable Long userId, @PathVariable Long blogId){
-        BlogCreateResponseDTO deletedBlog = blogService.deleteBlogById(userId, blogId);
+    @DeleteMapping("/delete/{blogId}")
+    public ResponseEntity<BlogCreateResponseDTO> deleteBlogById(@PathVariable Long blogId){
+        // Logged-in user
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        BlogCreateResponseDTO deletedBlog = blogService.deleteBlogById(loggedInUser.getUserId(), blogId);
         return new ResponseEntity<>(deletedBlog, HttpStatus.OK);
     }
 }

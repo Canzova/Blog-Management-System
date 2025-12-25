@@ -1,5 +1,6 @@
 package com.blogManagementSystem.config;
 
+import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.entity.User;
 import com.blogManagementSystem.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -10,18 +11,18 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 //@Component
 @Configuration
-public class DataLoader implements CommandLineRunner {
+public class AppConfig implements CommandLineRunner {
 
     private final UserRepository userRepository;
 
-    public DataLoader(UserRepository userRepository) {
+    public AppConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -38,6 +39,7 @@ public class DataLoader implements CommandLineRunner {
                 "pass",
                 "John",
                 "Doe",
+                Set.of(ROLE.ADMIN),
                 new ArrayList<>()
         );
 
@@ -47,6 +49,7 @@ public class DataLoader implements CommandLineRunner {
                 "pass",
                 "Alice",
                 "Smith",
+                Set.of(ROLE.ADMIN),
                 new ArrayList<>()
         );
 
@@ -56,6 +59,7 @@ public class DataLoader implements CommandLineRunner {
                 "pass",
                 "Bob",
                 "Brown",
+                Set.of(ROLE.ADMIN),
                 new ArrayList<>()
         );
 

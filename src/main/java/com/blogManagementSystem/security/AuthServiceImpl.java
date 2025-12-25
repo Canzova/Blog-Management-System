@@ -4,8 +4,9 @@ import com.blogManagementSystem.dto.LoginRequestDTO;
 import com.blogManagementSystem.dto.LoginResponseDTO;
 import com.blogManagementSystem.dto.SignUpRequestDTO;
 import com.blogManagementSystem.dto.SignUpResponseDTO;
+import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.entity.User;
-import com.blogManagementSystem.exception.ResourceNotFoundException;
+import com.blogManagementSystem.exception.GenericException;
 import com.blogManagementSystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     public SignUpResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
         // Step 1 :Check if user with name already exists
         if(userRepository.existsByUsername(signUpRequestDTO.getUsername())){
-            throw new IllegalArgumentException("Username already exists.");
+            throw new GenericException("Username already exists.");
         }
 
         // Step 2 : Now convert this DTO into entity
@@ -38,6 +39,9 @@ public class AuthServiceImpl implements AuthService {
 
         // Step 3 : Encrypt the password
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+
+        // Step 3.1 : Also set the Role as user by default
+        newUser.getRoles().add(ROLE.USER);
 
         // Step 4 : Now you can save this user into DB
         User savedUser = userRepository.save(newUser);

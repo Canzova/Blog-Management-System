@@ -3,7 +3,6 @@ package com.blogManagementSystem.exception;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,12 +50,19 @@ public class MyGlobalExceptionHandler {
         return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIExceptionResponse> myGenericExceptionHandler(Exception e){
-        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Something Went Wrong", e.getMessage());
-        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(GenericException.class)
+    public ResponseEntity<APIExceptionResponse> myGenericException(GenericException e) {
+        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.UNAUTHORIZED.value(),
+                "Sign-up failed.", e.getMessage());
+        return new ResponseEntity<>(exception, HttpStatus.UNAUTHORIZED);
     }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<APIExceptionResponse> myGenericExceptionHandler(Exception e){
+//        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+//                "Something Went Wrong", e.getMessage());
+//        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+//    }
 
 
 }

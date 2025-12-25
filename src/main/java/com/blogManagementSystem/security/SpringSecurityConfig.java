@@ -1,14 +1,22 @@
 package com.blogManagementSystem.security;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
+@RequiredArgsConstructor
 public class SpringSecurityConfig {
+
+    private final JwtFilter jwtFilter;
+    private final HandlerExceptionResolver handlerExceptionResolver;
+    private final AuthenticationErrorHandler authenticationErrorHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -21,8 +29,12 @@ public class SpringSecurityConfig {
                 ))
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/sign-up/**", "login").permitAll()
+                        .requestMatchers("/sign-up/**", "/login/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+                        httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(authenticationErrorHandler)
                 );
 
         return httpSecurity.build();

@@ -6,6 +6,7 @@ import com.blogManagementSystem.dto.CommentCreateResponse;
 import com.blogManagementSystem.entity.Blog;
 import com.blogManagementSystem.entity.User;
 import com.blogManagementSystem.exception.EmptyResourceException;
+import com.blogManagementSystem.exception.GenericException;
 import com.blogManagementSystem.exception.ResourceNotFoundException;
 import com.blogManagementSystem.repository.BlogRepository;
 import com.blogManagementSystem.repository.UserRepository;
@@ -76,10 +77,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public BlogCreateResponseDTO likeBlogByBlogId(Long blogId, Long userId) {
         // Step 1 : Check if this blogId exits with this author (User)
-        Blog blog = blogRepository.findByBlogIdAndAuthor_UserId(blogId, userId).
-                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId, "User", userId));
+        Blog blog = blogRepository.findById(blogId).
+                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId));
 
-        // This user will always exist
+        // This user will always exist ---> Logged-in user
         User user = userRepository.findById(userId).
                 orElseThrow();
 
@@ -92,12 +93,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public BlogCreateResponseDTO unLikeBlogByBlogId(Long blogId, Long userId) {
         // Step 1 : Check if this blogId exits with this author (User)
-        Blog blog = blogRepository.findByBlogIdAndAuthor_UserId(blogId, userId).
-                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId, "User", userId));
+        Blog blog = blogRepository.findById(blogId).
+                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId));
 
         // This user will always exist
         User user = userRepository.findById(userId).
                 orElseThrow();
+
+        // What if user has not liked it before and now trying to unlike it
+        if(!blog.getLikes().contains(user)) throw new GenericException("You haven't liked this post earlier.");
 
         blog.getLikes().remove(user); // Dirty
 

@@ -25,9 +25,9 @@ public class CommentServiceImpl implements CommentService{
     public CommentCreateResponse addComment(Long blogId, Long userId, CommentCreateRequest commentCreateRequestDTO) {
         // Note : This user will always exist in db because this is a logged-in user
 
-        // Step 1 : Check if this blog exist or not with this userID
-        Blog blog = blogRepository.findByBlogIdAndAuthor_UserId(blogId, userId).
-                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId, "User", userId));
+        // Step 1 : Check if this blog exist or not
+        Blog blog = blogRepository.findById(blogId).
+                orElseThrow(()-> new ResourceNotFoundException("Blog", blogId));
 
         // Step 2 : Convert the commentDTO into comment entity
         Comment userComment = modelMapper.map(commentCreateRequestDTO, Comment.class);

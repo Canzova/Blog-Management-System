@@ -3,6 +3,7 @@ package com.blogManagementSystem.exception;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -55,6 +56,22 @@ public class MyGlobalExceptionHandler {
         APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.UNAUTHORIZED.value(),
                 "Sign-up failed.", e.getMessage());
         return new ResponseEntity<>(exception, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<APIExceptionResponse> myIllegalArgumentException(IllegalArgumentException e){
+        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.NOT_ACCEPTABLE.value(),
+                "Illegal Argument", e.getMessage());
+
+        return new ResponseEntity<>(exception, HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<APIExceptionResponse> myBadCredentialsException(BadCredentialsException e){
+        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.BAD_REQUEST.value(),
+                "Bad Credentials", e.getMessage());
+
+        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
     }
 
 //    @ExceptionHandler(Exception.class)

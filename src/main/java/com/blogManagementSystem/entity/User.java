@@ -1,5 +1,6 @@
 package com.blogManagementSystem.entity;
 
+import com.blogManagementSystem.dto.constants.AuthProviderType;
 import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.service.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,6 +43,11 @@ public class User implements UserDetails{
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<ROLE> roles = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    private AuthProviderType authProviderType;
+
+    private String providerId;
 
     @OneToMany(mappedBy = "author", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JsonIgnore

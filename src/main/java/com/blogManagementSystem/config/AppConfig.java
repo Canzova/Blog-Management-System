@@ -1,5 +1,6 @@
 package com.blogManagementSystem.config;
 
+import com.blogManagementSystem.dto.constants.AuthProviderType;
 import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.entity.User;
 import com.blogManagementSystem.repository.UserRepository;
@@ -40,6 +41,8 @@ public class AppConfig implements CommandLineRunner {
                 "John",
                 "Doe",
                 Set.of(ROLE.ADMIN),
+                AuthProviderType.EMAIL,
+                "ADMIN",
                 new ArrayList<>()
         );
 
@@ -50,6 +53,8 @@ public class AppConfig implements CommandLineRunner {
                 "Alice",
                 "Smith",
                 Set.of(ROLE.ADMIN),
+                AuthProviderType.EMAIL,
+                "ADMIN",
                 new ArrayList<>()
         );
 
@@ -60,6 +65,8 @@ public class AppConfig implements CommandLineRunner {
                 "Bob",
                 "Brown",
                 Set.of(ROLE.ADMIN),
+                AuthProviderType.EMAIL,
+                "ADMIN",
                 new ArrayList<>()
         );
 

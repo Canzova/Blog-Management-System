@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class BlogServiceImpl implements BlogService{
     private final BlogRepository blogRepository;
 
     @Override
+    @PreAuthorize("hasAuthority('blog:write')")
     @Transactional
     public BlogCreateResponseDTO writeBlog(Long id, BlogCreateRequestDTO blogCreateRequestDTO) {
         // Step 1 : Check if ths user exists in db and get it ---> Edit : USer will always exist because it is logged-in user
@@ -56,12 +58,13 @@ public class BlogServiceImpl implements BlogService{
         userRepository.flush(); // forces INSERT
 
         BlogCreateResponseDTO response = modelMapper.map(blog, BlogCreateResponseDTO.class);
-        response.setAuthorId(id);
+        response.setUserId(id);
         response.setLikeCount(blog.getLikes() != null ? (long) blog.getLikes().size() : 0L);
         return response;
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:edit')")
     @Transactional
     public BlogCreateResponseDTO editBlog(Long userId, Long blogId, BlogCreateRequestDTO blogCreateRequestDTO) {
 
@@ -95,6 +98,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:read')")
     public BlogListResponse getCategoryBlogs(String categoryName, Integer pageSize, Integer pageNumber, String sortOrder, String sortBy) {
         // Step 1 : Check if this category is valid
         Category enumCategory;
@@ -119,6 +123,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:read')")
     public BlogListResponse getBlogsByHeading(String heading, Integer pageSize, Integer pageNumber, String sortOrder, String sortBy) {
         // Step 2 : Prepare your page
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
@@ -135,6 +140,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:read')")
     public BlogListResponse getAllBlogs(Integer pageSize, Integer pageNumber, String sortOrder, String sortBy) {
         // Step 2 : Prepare your page
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
@@ -151,6 +157,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:delete')")
     @Transactional
     public BlogCreateResponseDTO deleteBlogById(Long userId, Long blogId) {
         // Step 1 : Get the blog with given blogId and userId
@@ -160,7 +167,7 @@ public class BlogServiceImpl implements BlogService{
         blogRepository.delete(blog);
 
         BlogCreateResponseDTO response =  modelMapper.map(blog, BlogCreateResponseDTO.class);
-        response.setAuthorId(userId);
+        response.setUserId(userId);
         response.setLikeCount(blog.getLikes() != null ? (long)blog.getLikes().size() : 0L);
 
         return response;
@@ -181,6 +188,7 @@ public class BlogServiceImpl implements BlogService{
                                     .toList();
 
                     blogDto.setComments(commentDtoList);
+                    blogDto.setUserId(blog.getAuthor().getUserId());
                     blogDto.setLikeCount(
                             blog.getLikes() != null ? (long) blog.getLikes().size() : 0
                     );

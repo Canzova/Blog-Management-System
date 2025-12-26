@@ -1,5 +1,6 @@
 package com.blogManagementSystem.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +55,7 @@ public class MyGlobalExceptionHandler {
     @ExceptionHandler(GenericException.class)
     public ResponseEntity<APIExceptionResponse> myGenericException(GenericException e) {
         APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.UNAUTHORIZED.value(),
-                "Sign-up failed.", e.getMessage());
+                "Something went wrong.", e.getMessage());
         return new ResponseEntity<>(exception, HttpStatus.UNAUTHORIZED);
     }
 
@@ -72,6 +73,14 @@ public class MyGlobalExceptionHandler {
                 "Bad Credentials", e.getMessage());
 
         return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<APIExceptionResponse> myExpiredJwtException(ExpiredJwtException e){
+        APIExceptionResponse exceptionResponse = new APIExceptionResponse(HttpStatus.REQUEST_TIMEOUT.value(),
+                "Session Expired.", e.getMessage());
+
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.REQUEST_TIMEOUT);
     }
 
 //    @ExceptionHandler(Exception.class)

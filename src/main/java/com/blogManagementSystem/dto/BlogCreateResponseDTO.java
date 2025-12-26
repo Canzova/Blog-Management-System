@@ -26,7 +26,7 @@ public class BlogCreateResponseDTO {
     private LocalDateTime publishDateTime;
 
     private Boolean canComment;
-    private Long authorId;
+    private Long userId;
     private Long likeCount;
 
     private List<CommentCreateResponse> comments = new ArrayList<>();

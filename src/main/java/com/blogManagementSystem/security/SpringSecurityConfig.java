@@ -1,9 +1,11 @@
 package com.blogManagementSystem.security;
 
 
+import com.blogManagementSystem.dto.constants.ROLE;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SpringSecurityConfig {
 
     private final JwtFilter jwtFilter;
@@ -32,6 +35,7 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+//                        .requestMatchers("/admin/**").hasRole(ROLE.ADMIN.name())
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
@@ -42,7 +46,9 @@ public class SpringSecurityConfig {
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer ->
                         httpSecurityOAuth2LoginConfigurer.successHandler(oAuth2SuccessHandler)
                                 .failureHandler((request, response, exception) ->
-                                        handlerExceptionResolver.resolveException(request, response, null, exception)));
+                                        // Instead of using handlerExceptionResolver you could have also written a class like authenticationErrorHandler to handle this
+                                        handlerExceptionResolver.resolveException(request, response, null, exception))
+                );
 
         return httpSecurity.build();
     }

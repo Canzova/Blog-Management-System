@@ -37,7 +37,7 @@ public class AppConfig implements CommandLineRunner {
         User u1 = new User(
                 null,
                 "user1@gmail.com",
-                "pass",
+                passwordEncoder().encode("pass"),
                 "John",
                 "Doe",
                 Set.of(ROLE.ADMIN),
@@ -49,7 +49,7 @@ public class AppConfig implements CommandLineRunner {
         User u2 = new User(
                 null,
                 "user2@gmail.com",
-                "pass",
+                passwordEncoder().encode("pass"),
                 "Alice",
                 "Smith",
                 Set.of(ROLE.ADMIN),
@@ -61,7 +61,7 @@ public class AppConfig implements CommandLineRunner {
         User u3 = new User(
                 null,
                 "user3@gmail.com",
-                "pass",
+                passwordEncoder().encode("pass"),
                 "Bob",
                 "Brown",
                 Set.of(ROLE.ADMIN),

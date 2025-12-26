@@ -4,10 +4,12 @@ import com.blogManagementSystem.dto.BlogCreateResponseDTO;
 import com.blogManagementSystem.dto.BlogListResponse;
 import com.blogManagementSystem.dto.CommentCreateResponse;
 import com.blogManagementSystem.entity.Blog;
+import com.blogManagementSystem.entity.BlogLike;
 import com.blogManagementSystem.entity.User;
 import com.blogManagementSystem.exception.EmptyResourceException;
 import com.blogManagementSystem.exception.GenericException;
 import com.blogManagementSystem.exception.ResourceNotFoundException;
+import com.blogManagementSystem.repository.BlogLikeRepository;
 import com.blogManagementSystem.repository.BlogRepository;
 import com.blogManagementSystem.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,8 +33,10 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final BlogRepository blogRepository;
     private final ModelMapper modelMapper;
+    private final BlogLikeRepository blogLikeRepository;
 
     @Override
+    @PreAuthorize("hasAuthority('blog:read')")
     public BlogListResponse getMyBlogs(Long userId, String sortBy, String sortOrder, Integer pageNo, Integer pageSize) {
         // Step 1 : Check if this user exits
         User user = userRepository.findById(userId).
@@ -57,6 +62,7 @@ public class UserServiceImpl implements UserService {
                 .map(blog -> {
                     BlogCreateResponseDTO blogDTO = modelMapper.map(blog, BlogCreateResponseDTO.class);
                     blogDTO.setLikeCount(blog.getLikes() != null ? (long)blog.getLikes().size() : 0);
+                    blogDTO.setUserId(blog.getAuthor().getUserId());
                     return blogDTO;
                 })
                 .toList();
@@ -74,6 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:like')")
     @Transactional
     public BlogCreateResponseDTO likeBlogByBlogId(Long blogId, Long userId) {
         // Step 1 : Check if this blogId exits with this author (User)
@@ -84,12 +91,22 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).
                 orElseThrow();
 
-        blog.getLikes().add(user); // Dirty
+        if(blogLikeRepository.existsByUser_UserIdAndBlog_BlogId (userId, blogId)) {
+            throw new GenericException("You can like a post at-most once.");
+        }
+
+        BlogLike blogLike = BlogLike.builder()
+                .user(user)
+                .blog(blog)
+                .build();
+
+        blog.getLikes().add(blogLike); // Dirty --> Due to cascade.all blogLike will be automatically saved
 
         return getBlogCreateResponseDTO(blog);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('blog:unlike')")
     @Transactional
     public BlogCreateResponseDTO unLikeBlogByBlogId(Long blogId, Long userId) {
         // Step 1 : Check if this blogId exits with this author (User)
@@ -101,9 +118,13 @@ public class UserServiceImpl implements UserService {
                 orElseThrow();
 
         // What if user has not liked it before and now trying to unlike it
-        if(!blog.getLikes().contains(user)) throw new GenericException("You haven't liked this post earlier.");
+        BlogLike blogLike = blogLikeRepository.findByUser_UserIdAndBlog_BlogId(userId, blogId)
+                .orElseThrow(()-> new GenericException("You haven't liked this post earlier."));
 
-        blog.getLikes().remove(user); // Dirty
+        // Delete this BlogLike
+        blogLikeRepository.delete(blogLike);
+
+        blog.getLikes().remove(blogLike); // Dirty
 
         return getBlogCreateResponseDTO(blog);
     }
@@ -116,6 +137,7 @@ public class UserServiceImpl implements UserService {
         BlogCreateResponseDTO blogCreateResponseDTO = modelMapper.map(blog, BlogCreateResponseDTO.class);
 
         blogCreateResponseDTO.setComments(commentCreateResponseDTOList);
+        blogCreateResponseDTO.setUserId(blog.getAuthor().getUserId());
         blogCreateResponseDTO.setLikeCount(blog.getLikes() != null ? (long) blog.getLikes().size(): 0L);
         return blogCreateResponseDTO;
     }

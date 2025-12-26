@@ -17,6 +17,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+// For authentication failure
 public class AuthenticationErrorHandler implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper;

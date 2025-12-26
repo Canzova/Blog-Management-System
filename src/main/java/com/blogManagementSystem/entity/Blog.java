@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.engine.internal.Cascade;
 
@@ -19,7 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -50,15 +48,9 @@ public class Blog {
     @JoinColumn(name="author_id")
     private User author;
 
-    // On Many side we have dy default fetch type as lazy so we can't access it outside a transactional session
-    @ManyToMany
     @JsonIgnore
-    @JoinTable(
-            name = "blog_likes",
-            joinColumns = @JoinColumn(name = "blog_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User>likes = new HashSet<>();
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL)
+    private Set<BlogLike>likes = new HashSet<>();
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();

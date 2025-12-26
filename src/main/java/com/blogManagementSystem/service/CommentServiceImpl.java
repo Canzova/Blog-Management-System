@@ -10,6 +10,7 @@ import com.blogManagementSystem.repository.CommentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +22,7 @@ public class CommentServiceImpl implements CommentService{
 
 
     @Override
+    @PreAuthorize("hasAuthority('comment:write')")
     @Transactional
     public CommentCreateResponse addComment(Long blogId, Long userId, CommentCreateRequest commentCreateRequestDTO) {
         // Note : This user will always exist in db because this is a logged-in user
@@ -46,6 +48,7 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('comment:edit')")
     @Transactional
     public CommentCreateResponse editComment(Long commentId, Long userId, CommentCreateRequest commentCreateRequestDTO) {
         // Step 1 : Check this comment id belongs to this user or not
@@ -57,6 +60,7 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('comment:delete')")
     public CommentCreateResponse deleteComment(Long commentId, Long userId) {
         // Step 1 : Get this comment corresponding to this user
         Comment userComment = commentRepository.findByCommentIdAndUser_UserId(commentId, userId).

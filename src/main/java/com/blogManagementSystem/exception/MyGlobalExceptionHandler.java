@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -87,6 +88,14 @@ public class MyGlobalExceptionHandler {
     public ResponseEntity<APIExceptionResponse> myEmailVerificationTokenExceptionHandler(EmailVerificationTokenException e){
         APIExceptionResponse exceptionResponse = new APIExceptionResponse(HttpStatus.BAD_REQUEST.value(),
                 "Verification Error", e.getMessage());
+
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+   }
+
+   @ExceptionHandler(MailSendException.class)
+    public ResponseEntity<APIExceptionResponse> myMailSendException(MailSendException e){
+        APIExceptionResponse exceptionResponse = new APIExceptionResponse(HttpStatus.BAD_REQUEST.value(),
+                "Invalid Email Address", e.getMessage());
 
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
    }

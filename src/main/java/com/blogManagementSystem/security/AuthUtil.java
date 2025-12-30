@@ -77,14 +77,14 @@ public class AuthUtil {
 
         return switch (registrationId.toLowerCase()){
             case "google" -> {
-                if(providerId != null) yield providerId + AuthProviderType.GOOGLE.name();
+                if(providerId != null) yield providerId + AuthProviderType.GOOGLE.name() + "@gmail.com";
                 yield null;
             }
             case "github" -> {
-                if(providerId != null) yield providerId + AuthProviderType.GITHUB.name();
+                if(providerId != null) yield providerId + AuthProviderType.GITHUB.name()+ "@gmail.com";
                 yield null;
             }
-            default -> providerId;   // If provider is unknown just return thr providerId
+            default -> providerId + "@gmail.com";   // If provider is unknown just return thr providerId
         };
     }
 }

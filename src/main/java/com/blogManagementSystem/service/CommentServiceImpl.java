@@ -2,6 +2,7 @@ package com.blogManagementSystem.service;
 
 import com.blogManagementSystem.dto.CommentCreateRequest;
 import com.blogManagementSystem.dto.CommentCreateResponse;
+import com.blogManagementSystem.dto.constants.AuthProviderType;
 import com.blogManagementSystem.entity.Blog;
 import com.blogManagementSystem.entity.Comment;
 import com.blogManagementSystem.exception.ResourceNotFoundException;
@@ -62,7 +63,9 @@ public class CommentServiceImpl implements CommentService{
                         "Best regards,\n" +
                         "Blog Management System Team 💙";
 
-        emailService.sendEmailNotification(body, blog.getAuthor().getUserEmail(), subject);
+        // Send mail only if the user is signed from a verified email
+        if(blog.getAuthor().getAuthProviderType().equals(AuthProviderType.EMAIL))
+            emailService.sendEmailNotification(body, blog.getAuthor().getUserEmail(), subject);
 
         return modelMapper.map(userComment, CommentCreateResponse.class);
     }

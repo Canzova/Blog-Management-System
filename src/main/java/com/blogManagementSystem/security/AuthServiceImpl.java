@@ -46,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Step 3 : Encrypt the password
         if(signUpRequestDTO.getPassword() != null) newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.setVerified(false);  // Initially not verified
 
         // Check if providerId and providerType exists ---> Save them
         if(providerId != null) newUser.setProviderId(providerId);
@@ -54,14 +55,15 @@ public class AuthServiceImpl implements AuthService {
         // Step 3.1 : Also set the Role as user by default
         newUser.getRoles().add(ROLE.USER);
 
-        // Step 3.2 : Set the verification status as false
-        newUser.setVerified(false);
+        // Step 3.2 : Set the verification status as true if this user is sign-in from oauth2
+        if(providerId != null && providerType != null) newUser.setVerified(true);
 
-        // Step 4 : Now you can save this user into DB
+            // Step 4 : Now you can save this user into DB
         User savedUser =  userRepository.save(newUser);
 
-        // Step 5 : Now generate one emailVerificationToken and mail it to the user
-        emailVerificationTokenService.generateVerificationToken(savedUser);
+        // Step 5 : Now generate one emailVerificationToken and mail it to the user only if the user signup manually
+        if(providerId == null && providerType == null)
+            emailVerificationTokenService.generateVerificationToken(savedUser);
 
         return savedUser;
     }

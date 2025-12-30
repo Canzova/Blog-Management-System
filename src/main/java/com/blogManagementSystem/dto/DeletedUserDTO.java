@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class DeletedUserDTO {
 
     private Long userId;
-    private String username;
+    private String userEmail;
 
 }

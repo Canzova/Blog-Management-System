@@ -3,19 +3,16 @@ package com.blogManagementSystem.entity;
 import com.blogManagementSystem.dto.constants.AuthProviderType;
 import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.security.RolePermissionMapping;
-import com.blogManagementSystem.service.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -30,7 +27,9 @@ public class User implements UserDetails{
     private Long userId;
 
     @Column(nullable = false, unique = true)
-    String username;
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
+                    flags = Pattern.Flag.CASE_INSENSITIVE)
+    String userEmail;
 
     String password;
 
@@ -49,6 +48,8 @@ public class User implements UserDetails{
     private AuthProviderType authProviderType;
 
     private String providerId;
+
+    private Boolean verified;
 
     @OneToMany(mappedBy = "author", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JsonIgnore
@@ -70,6 +71,15 @@ public class User implements UserDetails{
 //       return roles.stream()
 //               .map(role1 -> new SimpleGrantedAuthority("ROLE_" + role1.name()))
 //               .toList();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.userEmail;
+    }
+
+    public void setUsername(String username){
+        this.userEmail = username;
     }
 
 }

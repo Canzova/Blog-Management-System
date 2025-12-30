@@ -75,4 +75,10 @@ public class BlogController {
         BlogCreateResponseDTO deletedBlog = blogService.deleteBlogById(loggedInUser.getUserId(), blogId);
         return new ResponseEntity<>(deletedBlog, HttpStatus.OK);
     }
+
+    @GetMapping("/{blogId}")
+    public ResponseEntity<BlogCreateResponseDTO> getBlogByBlogId(@PathVariable Long blogId){
+        BlogCreateResponseDTO blog = blogService.getBlogByBlogId(blogId);
+        return new ResponseEntity<>(blog, HttpStatus.OK);
+    }
 }

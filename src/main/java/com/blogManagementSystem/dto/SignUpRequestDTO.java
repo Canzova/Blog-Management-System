@@ -13,7 +13,7 @@ public class SignUpRequestDTO {
 
     @NotBlank(message = "Password can't be blank or null")
     @Size(min = 3, message = "Username should have at least 3 characters")
-    private String username;
+    private String userEmail;
 
     @NotBlank(message = "First Name can't be blank or null")
     private String firstName;

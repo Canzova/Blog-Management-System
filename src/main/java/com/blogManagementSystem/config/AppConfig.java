@@ -43,6 +43,7 @@ public class AppConfig implements CommandLineRunner {
                 Set.of(ROLE.ADMIN),
                 AuthProviderType.EMAIL,
                 "ADMIN",
+                true,
                 new ArrayList<>()
         );
 
@@ -55,6 +56,7 @@ public class AppConfig implements CommandLineRunner {
                 Set.of(ROLE.ADMIN),
                 AuthProviderType.EMAIL,
                 "ADMIN",
+                true,
                 new ArrayList<>()
         );
 
@@ -67,6 +69,7 @@ public class AppConfig implements CommandLineRunner {
                 Set.of(ROLE.ADMIN),
                 AuthProviderType.EMAIL,
                 "ADMIN",
+                true,
                 new ArrayList<>()
         );
 

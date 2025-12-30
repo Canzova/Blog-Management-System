@@ -7,8 +7,10 @@ import com.blogManagementSystem.dto.SignUpResponseDTO;
 import com.blogManagementSystem.dto.constants.AuthProviderType;
 import com.blogManagementSystem.dto.constants.ROLE;
 import com.blogManagementSystem.entity.User;
+import com.blogManagementSystem.exception.EmailVerificationTokenException;
 import com.blogManagementSystem.exception.GenericException;
 import com.blogManagementSystem.repository.UserRepository;
+import com.blogManagementSystem.service.EmailVerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +33,11 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final AuthUtil authUtil;
+    private final EmailVerificationTokenService emailVerificationTokenService;
 
     public User signUpInternal(SignUpRequestDTO signUpRequestDTO, String providerId, AuthProviderType providerType){
         // Step 1 :Check if user with name already exists
-        if(userRepository.existsByUsername(signUpRequestDTO.getUsername())){
+        if(userRepository.existsByUserEmail(signUpRequestDTO.getUserEmail())){
             throw new GenericException("Username already exists.");
         }
 
@@ -51,8 +54,16 @@ public class AuthServiceImpl implements AuthService {
         // Step 3.1 : Also set the Role as user by default
         newUser.getRoles().add(ROLE.USER);
 
+        // Step 3.2 : Set the verification status as false
+        newUser.setVerified(false);
+
         // Step 4 : Now you can save this user into DB
-        return  userRepository.save(newUser);
+        User savedUser =  userRepository.save(newUser);
+
+        // Step 5 : Now generate one emailVerificationToken and mail it to the user
+        emailVerificationTokenService.generateVerificationToken(savedUser);
+
+        return savedUser;
     }
 
 
@@ -64,13 +75,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequestDTO.getUserEmail(), loginRequestDTO.getPassword())
         );
 
         User user = (User) authentication.getPrincipal();
+
+        // Make sure that user is verified before login
+        if(user.getVerified() == false) throw new EmailVerificationTokenException("Please verify your email first.");
         String jwtToken = authUtil.generateJwtToken(user);
 
-        return new LoginResponseDTO(user.getUserId(), user.getUsername(), jwtToken);
+        return new LoginResponseDTO(user.getUserId(), user.getUserEmail(), jwtToken);
     }
 
     @Override
@@ -89,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
         String email = user.getAttribute("email");
 
         // Step 5 : Get the user with this email
-        User userWithEmail = userRepository.findByUsername(email).orElse(null);
+        User userWithEmail = userRepository.findByUserEmail(email).orElse(null);
 
         String firstName = null;
         String lastName = null;
@@ -108,13 +122,13 @@ public class AuthServiceImpl implements AuthService {
 
         if(oAuth2User == null && userWithEmail == null){
             // This user is new ---> Signup and Login
-            String userName = authUtil.getUsernameFromOAuth2UserAndRegistrationId(user, registrationId, providerId);
-            oAuth2User = signUpInternal(new SignUpRequestDTO(userName, firstName, lastName, null), providerId, providerType);
+            String userEmail = authUtil.getUserEmailFromOAuth2UserAndRegistrationId(user, registrationId, providerId);
+            oAuth2User = signUpInternal(new SignUpRequestDTO(userEmail, firstName, lastName, null), providerId, providerType);
         }
         else if(oAuth2User != null){
             // This user has already done signup with this same OAuth2 Provider, just check mail and do login
-            if(email != null && !email.isBlank() && !email.equals(oAuth2User.getUsername())){
-                oAuth2User.setUsername(email);
+            if(email != null && !email.isBlank() && !email.equals(oAuth2User.getUserEmail())){
+                oAuth2User.setUserEmail(email);
                 userRepository.save(oAuth2User);
             }
         }
@@ -124,6 +138,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return ResponseEntity.ok().
-                body(new LoginResponseDTO(oAuth2User.getUserId(), oAuth2User.getUsername(), authUtil.generateJwtToken(oAuth2User)));
+                body(new LoginResponseDTO(oAuth2User.getUserId(), oAuth2User.getUserEmail(), authUtil.generateJwtToken(oAuth2User)));
     }
 }

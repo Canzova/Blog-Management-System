@@ -32,7 +32,7 @@ public class BlogServiceImpl implements BlogService{
     private final BlogRepository blogRepository;
 
     @Override
-    @PreAuthorize("hasAuthority('blog:write')")
+    @PreAuthorize("hasAuthority('blog:write') and authentication.principal.verified == true")
     @Transactional
     public BlogCreateResponseDTO writeBlog(Long id, BlogCreateRequestDTO blogCreateRequestDTO) {
         // Step 1 : Check if ths user exists in db and get it ---> Edit : USer will always exist because it is logged-in user
@@ -64,7 +64,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:edit')")
+    @PreAuthorize("hasAuthority('blog:edit') and authentication.principal.verified == true")
     @Transactional
     public BlogCreateResponseDTO editBlog(Long userId, Long blogId, BlogCreateRequestDTO blogCreateRequestDTO) {
 
@@ -98,7 +98,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:read')")
+    @PreAuthorize("hasAuthority('blog:read') and authentication.principal.verified == true")
     public BlogListResponse getCategoryBlogs(String categoryName, Integer pageSize, Integer pageNumber, String sortOrder, String sortBy) {
         // Step 1 : Check if this category is valid
         Category enumCategory;
@@ -123,7 +123,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:read')")
+    @PreAuthorize("hasAuthority('blog:read') and authentication.principal.verified == true")
     public BlogListResponse getBlogsByHeading(String heading, Integer pageSize, Integer pageNumber, String sortOrder, String sortBy) {
         // Step 2 : Prepare your page
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
@@ -140,7 +140,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:read')")
+    @PreAuthorize("hasAuthority('blog:read') and authentication.principal.verified == true")
     public BlogListResponse getAllBlogs(Integer pageSize, Integer pageNumber, String sortOrder, String sortBy) {
         // Step 2 : Prepare your page
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
@@ -157,7 +157,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:delete')")
+    @PreAuthorize("hasAuthority('blog:delete') and authentication.principal.verified == true")
     @Transactional
     public BlogCreateResponseDTO deleteBlogById(Long userId, Long blogId) {
         // Step 1 : Get the blog with given blogId and userId
@@ -171,6 +171,17 @@ public class BlogServiceImpl implements BlogService{
         response.setLikeCount(blog.getLikes() != null ? (long)blog.getLikes().size() : 0L);
 
         return response;
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('blog:read') and authentication.principal.verified == true")
+    public BlogCreateResponseDTO getBlogByBlogId(Long blogId) {
+        // Step 1 : Check if this blog exists
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(()->new ResourceNotFoundException("Blog", blogId));
+
+        // Step 2 : Return this blog
+        return modelMapper.map(blog, BlogCreateResponseDTO.class);
     }
 
     private BlogListResponse getBlogListResponse(Page<Blog> page) {

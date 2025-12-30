@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private final BlogLikeRepository blogLikeRepository;
 
     @Override
-    @PreAuthorize("hasAuthority('blog:read')")
+    @PreAuthorize("hasAuthority('blog:read') and authentication.principal.verified == true")
     public BlogListResponse getMyBlogs(Long userId, String sortBy, String sortOrder, Integer pageNo, Integer pageSize) {
         // Step 1 : Check if this user exits
         User user = userRepository.findById(userId).
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:like')")
+    @PreAuthorize("hasAuthority('blog:like') and authentication.principal.verified == true")
     @Transactional
     public BlogCreateResponseDTO likeBlogByBlogId(Long blogId, Long userId) {
         // Step 1 : Check if this blogId exits with this author (User)
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('blog:unlike')")
+    @PreAuthorize("hasAuthority('blog:unlike') and authentication.principal.verified == true")
     @Transactional
     public BlogCreateResponseDTO unLikeBlogByBlogId(Long blogId, Long userId) {
         // Step 1 : Check if this blogId exits with this author (User)

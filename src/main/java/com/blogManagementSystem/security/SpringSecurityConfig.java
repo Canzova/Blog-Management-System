@@ -34,7 +34,7 @@ public class SpringSecurityConfig {
                 ))
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/verify/**").permitAll()
 //                        .requestMatchers("/admin/**").hasRole(ROLE.ADMIN.name())
                         .anyRequest().authenticated()
                 )

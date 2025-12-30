@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponseDTO {
 
-    private Long userId;
-    private String userEmail;
-    private String jwt;
-
+public class EmailVerificationResponseDTO {
+    private String message;
 }

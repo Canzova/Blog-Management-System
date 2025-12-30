@@ -83,6 +83,15 @@ public class MyGlobalExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.REQUEST_TIMEOUT);
     }
 
+   @ExceptionHandler(EmailVerificationTokenException.class)
+    public ResponseEntity<APIExceptionResponse> myEmailVerificationTokenExceptionHandler(EmailVerificationTokenException e){
+        APIExceptionResponse exceptionResponse = new APIExceptionResponse(HttpStatus.BAD_REQUEST.value(),
+                "Verification Error", e.getMessage());
+
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+   }
+
+
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<APIExceptionResponse> myGenericExceptionHandler(Exception e){
 //        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),

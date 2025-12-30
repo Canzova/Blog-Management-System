@@ -28,7 +28,7 @@ public class AuthUtil {
 
     public String generateJwtToken(User user) {
         return Jwts.builder()
-                .subject(user.getUsername())
+                .subject(user.getUserEmail())
                 .claim("userId", user.getUserId())
                 .claim("userFirstName", user.getFirstName())
                 .issuedAt(new Date())
@@ -71,7 +71,7 @@ public class AuthUtil {
         return providerId;
     }
 
-    public String getUsernameFromOAuth2UserAndRegistrationId(OAuth2User user, String registrationId, String providerId) {
+    public String getUserEmailFromOAuth2UserAndRegistrationId(OAuth2User user, String registrationId, String providerId) {
         String userName = user.getAttribute("email");
         if(userName != null && !userName.isBlank()) return userName;
 

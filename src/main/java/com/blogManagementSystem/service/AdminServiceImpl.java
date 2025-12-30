@@ -17,7 +17,7 @@ public class AdminServiceImpl implements AdminService{
     private final ModelMapper modelMapper;
 
     @Override
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('user:delete')")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('user:delete') and authentication.principal.verified == true")
     public DeletedUserDTO deleteUserByUserId(Long userId) {
         // Check if user exists
         User user = userRepository.findById(userId)

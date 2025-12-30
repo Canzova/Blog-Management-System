@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 
 public class SignUpResponseDTO {
     private Long userId;
-    private String username;
+    private String userEmail;
 }

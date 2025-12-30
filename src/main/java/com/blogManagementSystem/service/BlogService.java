@@ -18,4 +18,6 @@ public interface BlogService {
     BlogListResponse getAllBlogs(Integer pageSize, Integer pageNumber, String sortOrder, String sortBy);
 
     BlogCreateResponseDTO deleteBlogById(Long userId, Long blogId);
+
+    BlogCreateResponseDTO getBlogByBlogId(Long blogId);
 }

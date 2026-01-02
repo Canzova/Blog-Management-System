@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class BlogCreateResponseDTO {
     private Long blogId;
     private String heading;

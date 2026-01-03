@@ -100,13 +100,4 @@ public class MyGlobalExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
    }
 
-
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<APIExceptionResponse> myGenericExceptionHandler(Exception e){
-//        APIExceptionResponse exception = new APIExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                "Something Went Wrong", e.getMessage());
-//        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
-//    }
-
-
 }
